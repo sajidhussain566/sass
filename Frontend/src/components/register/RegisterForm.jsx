@@ -42,7 +42,7 @@ const RegisterForm = () => {
   // hanlde register
 
   function handleSubmit() {
-    fetch("http://localhost:7070/api/v1/owner/register", {
+    fetch("http://localhost:5050/api/v1/owner/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

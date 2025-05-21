@@ -1,12 +1,13 @@
 import Owner from "../../models/owner/owner.model.js";
 import School from "../../models/school/School.model.js";
-import AsyncHandler from "../../utils/AysncHandler.js";
+import AsyncHandler from "../../utils/AsyncHandler.js";
 import CustomError from "../../utils/CustomError.js";
 import emailHtmlTemplate from "../../utils/emailHTMLTemplat.js";
 import generateOTP from "../../utils/generateOtp.js"
 import Otp from "../../models/otp/otp.model.js";
 import sendEmail from "../../utils/sendEmail.js";
-import cleanOtp from "../../helpers/CleanOtp.js";
+import cleanOtp from "../../heplers/CleanOtp.js";
+import uploadImage from "../../utils/cloudinary.js";
 // const registerOwner =async function(req,res,next){
 //     throw new CustomError("this is my cutom error" , 404 , {data:null})
 // }
@@ -18,14 +19,35 @@ const registerOwner = AsyncHandler(async function (req, res, next) {
     email,
     phone,
     password,
-    profile,
     plan,
     name,
     city,
     address,
     contactNumber,
     type,
+    profile
   } = req.body;
+  console.log(req.body)
+let secureUrl
+  const {file} = req
+    if(file){
+         const localpath = file.path
+         try {
+                   const imageUpload =  await uploadImage(localpath);
+                    if(!imageUpload){
+                      return next(new CustomError("Image upload failed" , 500))
+                    }
+
+                    secureUrl = imageUpload.secure_url
+                    console.log(secureUrl , "SECURE URL")
+         } catch (error) {
+          return next(new CustomError("Image upload failed" , 500))
+         }
+    }
+
+
+
+
 
   // field check
 
@@ -38,6 +60,7 @@ const registerOwner = AsyncHandler(async function (req, res, next) {
     password,
     profile,
     plan,
+    profile:secureUrl|| undefined
   });
 
 
@@ -223,6 +246,16 @@ const imageUpload = AsyncHandler(async(req,res,next)=>{
          if (!file){
            return next(new CustomError("Image not found" , 404))
          }
+       
+          // file upload to cloudinary
+          const imageObj = await uploadImage(file.path)
+          if(!imageObj){
+            return next(new CustomError("Image upload failed" , 500))
+          }
+          
+          console.log(imageObj , "IMAGE OBJ")
+
+
          res.json({
             message:"Image uploaded successfully",
             status:1,
