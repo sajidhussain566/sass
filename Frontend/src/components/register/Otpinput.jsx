@@ -49,7 +49,7 @@ const OtpInput = ({formData}) => {
   const handleSubmit = () => {
     const finalOtp = otp.join('');
     // fetch
-    fetch("http://localhost:7070/api/v1/owner/verify-otp", {
+    fetch("http://localhost:5050/api/v1/owner/verify-otp", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
