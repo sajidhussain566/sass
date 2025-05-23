@@ -17,7 +17,7 @@ const navigate = useNavigate();
       return;
     }
 
-      fetch("http://localhost:5050/api/v1/owner/resend-otp", {
+      fetch("http://localhost:7070/api/v1/owner/resend-otp", {
              method: "POST",
              headers:{
                 "Content-Type": "application/json",

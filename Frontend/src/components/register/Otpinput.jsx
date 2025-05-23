@@ -1,12 +1,14 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router';
 
 const OtpInput = ({formData}) => {
   const [otp, setOtp] = useState(new Array(6).fill(''));
   const [timer, setTimer] = useState(60);
   const [resendEnabled, setResendEnabled] = useState(false);
   const inputRefs = useRef([]);
+  const navigate =  useNavigate()
 
   useEffect(() => {
     if (timer === 0) {
@@ -49,7 +51,7 @@ const OtpInput = ({formData}) => {
   const handleSubmit = () => {
     const finalOtp = otp.join('');
     // fetch
-    fetch("http://localhost:5050/api/v1/owner/verify-otp", {
+    fetch("http://localhost:7070/api/v1/owner/verify-otp", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,7 +71,9 @@ const OtpInput = ({formData}) => {
     })
     .then((data)=>{
         if(data.status === 1){
-           return toast.success("OTP verified successfully");
+          navigate("/auth/login") 
+          return toast.success("OTP verified successfully");
+
         }
     })
     .catch(()=>{
@@ -81,8 +85,42 @@ const OtpInput = ({formData}) => {
     setOtp(new Array(6).fill(''));
     setTimer(60);
     setResendEnabled(false);
-    console.log('Resend OTP logic goes here');
+    
     // 👉 Add your resend API logic here
+    fetch("http://localhost:7070/api/v1/owner/resend-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        email: formData.email,
+      }),
+    })
+    .then(async (res)=>{
+        const data = await res.json();
+        if(data.status === 0){
+           throw new Error(data.message);
+        }
+        if(!res.ok){
+           return toast.error(data.message);
+        }
+      return data
+    })
+    .then((data)=>{
+        if(data.status === 1){
+           return toast.success("OTP send to your email please verify");
+        }
+    })
+    .catch((err)=>{
+      toast.error(err.message || "Something went wrong");
+    })
+
+
+
+
+
+
   };
 
   return (

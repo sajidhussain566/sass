@@ -6,8 +6,9 @@ import emailHtmlTemplate from "../../utils/emailHTMLTemplat.js";
 import generateOTP from "../../utils/generateOtp.js"
 import Otp from "../../models/otp/otp.model.js";
 import sendEmail from "../../utils/sendEmail.js";
-import cleanOtp from "../../heplers/CleanOtp.js";
+import cleanOtp from "../../helpers/CleanOtp.js";
 import uploadImage from "../../utils/cloudinary.js";
+import chalk from "chalk";
 // const registerOwner =async function(req,res,next){
 //     throw new CustomError("this is my cutom error" , 404 , {data:null})
 // }
@@ -263,6 +264,8 @@ const imageUpload = AsyncHandler(async(req,res,next)=>{
 })
 
 
+
+
 // login user 
 const login = AsyncHandler(async(req,res,next)=>{
   const {email , password} = req.body
@@ -287,13 +290,31 @@ const login = AsyncHandler(async(req,res,next)=>{
     return next(new CustomError("Please verify your account first before login" , 401))
   }
 
+
+  // generate token
+   const token = isEmailExist.generateToken();
+   console.log(chalk.green.bold("JWT TOKEN " ,  token))
+
+if(!token){
+  return next(new CustomError("Token not generated" , 500))
+}
+
+res.cookie("token" , token , {
+  httpOnly:true,
+  secure:true,
+  sameSite:"none",
+  path:"/",
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), //7 days
+})
+
   // login user 
   res.json({
     status:1,
     message:"Login successfully",
     data:{
       user:isEmailExist
-    }
+    },
+    token
   })
 
 })
@@ -307,6 +328,21 @@ const login = AsyncHandler(async(req,res,next)=>{
 // })
 
 
+// user me 
+const me  =  AsyncHandler(async(req,res,next)=>{
+    const {email} =  req.user;
+    const isUserExist = await Owner.findOne({email});
+    if(!isUserExist){
+      return next(new CustomError("User not found" , 404))
+    }
+    
+    res.json({
+      status:1 ,
+     message:"your profile object" , 
+     data:isUserExist
+    })
+
+})
 
 
 
@@ -314,4 +350,5 @@ const login = AsyncHandler(async(req,res,next)=>{
 
 
 
-export { registerOwner , verifyOtp, resendOtp, imageUpload, login};
+
+export { registerOwner , verifyOtp, resendOtp, imageUpload, me, login};

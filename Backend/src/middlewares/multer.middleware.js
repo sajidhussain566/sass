@@ -5,8 +5,8 @@ import { dirname } from "path";
 import CustomError from "../utils/CustomError.js";
 
 
-const filePath =  fileURLToPath(import.meta.url); // backend/src/middlewares/multer.middleware.js   
-const __dirname =  dirname(filePath) //backend/src/middlewares/
+const filePath = fileURLToPath(import.meta.url); // F:\sass\backend\src\middlewares\multer.middleware.js
+const __dirname = dirname(filePath);             // F:\sass\backend\src\middlewares
 const uploadPath = path.join(__dirname , "../../public/profiles")
 
 

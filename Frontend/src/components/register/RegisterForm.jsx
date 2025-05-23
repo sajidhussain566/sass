@@ -3,7 +3,7 @@ import logo from "/logo.png";
 import OwnerForm from "./OwnerForm";
 import SchoolForm from "./SchoolForm";
 import toast, { Toaster } from "react-hot-toast";
-import OtpInput from "./Otpinput";
+import OtpInput from "./OtpInput";
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -16,8 +16,10 @@ const RegisterForm = () => {
     address: "",
     contactNumber: "",
     type: "",
+    profile:undefined 
   });
   const [step, setStep] = useState(1);
+  const [loading , setLoading] = useState(false)
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -42,13 +44,29 @@ const RegisterForm = () => {
   // hanlde register
 
   function handleSubmit() {
-    fetch("http://localhost:5050/api/v1/owner/register", {
+    const avalialbleFormData =  new FormData()
+    for (const key in formData) {
+      if (formData[key]) {
+        avalialbleFormData.append(key, formData[key]);
+      }
+    }
+    // avalialbleFormData.append("fullName", formData.fullName); 
+    // avalialbleFormData.append("email", formData.email);
+    // avalialbleFormData.append("password", formData.password);
+    // avalialbleFormData.append("phone", formData.phone);
+    // avalialbleFormData.append("plan", formData.plan);
+    // avalialbleFormData.append("name", formData.name);
+    // avalialbleFormData.append("city", formData.city);
+    // avalialbleFormData.append("address", formData.address);
+
+   setLoading(true)
+    fetch("http://localhost:7070/api/v1/owner/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      // headers: {
+      //   "Content-Type": "application/json",
+      // },
       credentials: "include",
-      body: JSON.stringify(formData),
+      body: avalialbleFormData,
     })
       .then((res) => {
         if (res.status === 409) {
@@ -69,7 +87,10 @@ const RegisterForm = () => {
       })
       .catch(() => {
         toast.error("Registration failed try again ");
-      });
+      })
+      .finally(()=>{
+        setLoading(false)
+      })
   }
 
   return (
@@ -93,6 +114,7 @@ const RegisterForm = () => {
               handleNext={handleNext}
               formData={formData}
               handleChange={handleChange}
+              setFormData={setFormData}
             />
           )}
           {step === 2 && (
@@ -101,6 +123,7 @@ const RegisterForm = () => {
               formData={formData}
               handleChange={handleChange}
               handleSubmit={handleSubmit}
+              loading={loading}
             />
           )}
           {
@@ -109,7 +132,7 @@ const RegisterForm = () => {
         </div>
       </div>
       <div className="flex-1 bg-red-400">
-      <img className="w-full h-full object-cover" src="https://img.freepik.com/free-photo/kids-classroom-taking-english-class_23-2149402667.jpg?uid=R81763851&ga=GA1.1.1431774858.1747201417&semt=ais_hybrid&w=740" alt="" />
+      <img className="w-full h-full object-cover" src="https://img.freepik.com/free-photo/full-shot-kids-teacher-sitting-table_23-2149355204.jpg?uid=R81763851&ga=GA1.1.1431774858.1747201417&semt=ais_hybrid&w=740" alt="" />
       </div>
 
       <Toaster position="top-center" reverseOrder={false} />
